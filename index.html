@@ -1741,7 +1741,7 @@ section{ position:relative; padding:7rem 0; }
     <button class="coupon-modal-ok" id="couponModalOk">Got it</button>
   </div>
 </div>
-  
+
 
 <script>
 /* ────────────────────────────────────────────────────────────
@@ -2052,7 +2052,7 @@ section{ position:relative; padding:7rem 0; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
 <!-- Fixed overlay canvas: shows fireworks when candles are blown on cake -->
 <canvas id="cakeOverlayCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50;opacity:0;transition:opacity .6s ease;display:block;"></canvas>
@@ -2065,12 +2065,26 @@ section{ position:relative; padding:7rem 0; }
    RESEND EMAIL SENDER — 
    ============================================================ */
 
-var RESEND_API_KEY = 're_8EUAbeqc_AK4CjstK5Xa4JWHuS6mq8Vr4E';          /* ← paste your re_xxxxxxx key here */
+var RESEND_API_KEY = 're_8EUAbeqc_AK4CjstK5Xa4JWHuS6mq8Vr4E';
+var RESEND_EMAIL_ENDPOINT = 'https://api.resend.com/emails';
 var RESEND_TO      = 'waqas0w105@gmail.com';        /* ← your email where you want to receive */
 var RESEND_FROM    = 'onboarding@resend.dev';       /* ← keep this exactly as-is */
- 
+
+function emailWrap(title, bodyHTML){
+  return (
+    '<div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;' +
+      'padding:24px;background:#120d11;color:#FFD3E4;border:1px solid rgba(255,79,135,.2);' +
+      'border-radius:18px;">' +
+      '<div style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;' +
+      'color:rgba(255,211,228,.45);margin-bottom:10px;">Birthday Surprise</div>' +
+      '<h2 style="margin:0 0 10px;font-size:28px;color:#FF4F87;">' + title + '</h2>' +
+      '<div style="line-height:1.7;">' + bodyHTML + '</div>' +
+    '</div>'
+  );
+}
+
 function sendToResend(subject, bodyHTML){
-  fetch('https://api.resend.com/emails', {
+  fetch(RESEND_EMAIL_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -2082,7 +2096,16 @@ function sendToResend(subject, bodyHTML){
       subject: subject,
       html:    bodyHTML
     })
-  }).catch(function(e){ console.warn('Resend failed:', e); });
+  }).then(function(res){
+    return res.json().then(function(data){
+      if(!res.ok){
+        throw new Error((data && data.message) || 'Resend rejected the request.');
+      }
+      console.log('Resend email sent:', data);
+    });
+  }).catch(function(e){
+    console.warn('Resend failed:', e);
+  });
 }
 
 
