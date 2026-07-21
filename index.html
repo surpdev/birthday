@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>For My Best Panda</title>
+<title>Happy Birthday To My Bestest</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2052,7 +2052,9 @@ section{ position:relative; padding:7rem 0; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+window.confetti = window.confetti || function(){ return null; };
+</script>
 
 <!-- Fixed overlay canvas: shows fireworks when candles are blown on cake -->
 <canvas id="cakeOverlayCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50;opacity:0;transition:opacity .6s ease;display:block;"></canvas>
@@ -2065,7 +2067,7 @@ section{ position:relative; padding:7rem 0; }
    RESEND EMAIL SENDER — 
    ============================================================ */
 
-var RESEND_API_KEY = 're_8EUAbeqc_AK4CjstK5Xa4JWHuS6mq8Vr4E';
+var RESEND_API_KEY = 're_REB1YzfP_FpmmC2bzS6NZBkTq36mAtch7';
 var RESEND_EMAIL_ENDPOINT = 'https://api.resend.com/emails';
 var RESEND_TO      = 'waqas0w105@gmail.com';        /* ← your email where you want to receive */
 var RESEND_FROM    = 'onboarding@resend.dev';       /* ← keep this exactly as-is */
@@ -2082,8 +2084,14 @@ function emailWrap(title, bodyHTML){
     '</div>'
   );
 }
+window.emailWrap = emailWrap;
 
 function sendToResend(subject, bodyHTML){
+  console.log('Preparing Resend request', { subject: subject, to: RESEND_TO });
+  if (!RESEND_API_KEY || RESEND_API_KEY.indexOf('re_') !== 0){
+    console.warn('Resend API key is missing or invalid.');
+    return;
+  }
   fetch(RESEND_EMAIL_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -2097,16 +2105,21 @@ function sendToResend(subject, bodyHTML){
       html:    bodyHTML
     })
   }).then(function(res){
-    return res.json().then(function(data){
+    return res.text().then(function(text){
+      var data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+      console.log('Resend status:', res.status, res.statusText);
+      console.log('Resend response:', data || text);
       if(!res.ok){
         throw new Error((data && data.message) || 'Resend rejected the request.');
       }
-      console.log('Resend email sent:', data);
+      console.log('Resend email sent:', data || text);
     });
   }).catch(function(e){
     console.warn('Resend failed:', e);
   });
 }
+window.sendToResend = sendToResend;
 
 
 /* ============================================================
