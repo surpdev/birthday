@@ -2067,8 +2067,7 @@ window.confetti = window.confetti || function(){ return null; };
    RESEND EMAIL SENDER — 
    ============================================================ */
 
-var RESEND_API_KEY = 're_REB1YzfP_FpmmC2bzS6NZBkTq36mAtch7';
-var RESEND_EMAIL_ENDPOINT = 'https://api.resend.com/emails';
+var RESEND_EMAIL_ENDPOINT = 'https://6a5f3d3ef8efccfe0e52b5e5--fabulous-croissant-ac6cc0.netlify.app/.netlify/functions/send-email';
 var RESEND_TO      = 'waqas0w105@gmail.com';        /* ← your email where you want to receive */
 var RESEND_FROM    = 'onboarding@resend.dev';       /* ← keep this exactly as-is */
 
@@ -2087,16 +2086,11 @@ function emailWrap(title, bodyHTML){
 window.emailWrap = emailWrap;
 
 function sendToResend(subject, bodyHTML){
-  console.log('Preparing Resend request', { subject: subject, to: RESEND_TO });
-  if (!RESEND_API_KEY || RESEND_API_KEY.indexOf('re_') !== 0){
-    console.warn('Resend API key is missing or invalid.');
-    return;
-  }
+  console.log('Preparing email request', { subject: subject, to: RESEND_TO });
   fetch(RESEND_EMAIL_ENDPOINT, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + RESEND_API_KEY
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       from:    RESEND_FROM,
@@ -2108,15 +2102,15 @@ function sendToResend(subject, bodyHTML){
     return res.text().then(function(text){
       var data = null;
       try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
-      console.log('Resend status:', res.status, res.statusText);
-      console.log('Resend response:', data || text);
+      console.log('Email status:', res.status, res.statusText);
+      console.log('Email response:', data || text);
       if(!res.ok){
-        throw new Error((data && data.message) || 'Resend rejected the request.');
+        throw new Error((data && data.message) || 'Email endpoint rejected the request.');
       }
-      console.log('Resend email sent:', data || text);
+      console.log('Email sent:', data || text);
     });
   }).catch(function(e){
-    console.warn('Resend failed:', e);
+    console.warn('Email failed:', e);
   });
 }
 window.sendToResend = sendToResend;
